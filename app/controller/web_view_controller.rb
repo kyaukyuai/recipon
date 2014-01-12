@@ -4,14 +4,15 @@ class WebViewController < UIViewController
         def viewDidLoad
                 super
 
-                self.navigationItem.title = self.recipe[:title]
-
-                @webview = UIWebView.new.tap do |v|
-                        v.frame = self.view.bounds
-                        v.scalesPageToFit = true
-                        v.loadRequest(NSURLRequest.requestWithURL(NSURL.URLWithString(self.recipe[:url])))
-                        v.delegate = self
-                        view.addSubview(v)
-                end
+                @label = UILabel.alloc.initWithFrame(CGRectZero)
+                @label.text = recipe[:title]
+                @label.sizeToFit
+                @label.center = CGPointMake(self.view.frame.size.width / 2, self.view.frame.size.height / 4)
+                view.addSubview @label
+                
+                image_data = NSData.dataWithContentsOfURL(NSURL.URLWithString(recipe[:image]))
+                @image = UIImageView.alloc.initWithImage(UIImage.imageWithData(image_data))
+                @image.center = CGPointMake(self.view.frame.size.width / 2, self.view.frame.size.height / 2)
+                view.addSubview @image
         end
 end
