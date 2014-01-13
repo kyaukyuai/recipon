@@ -1,4 +1,6 @@
 class ItemsViewController < UIViewController
+        include BW::KVO
+
         def viewDidLoad
                 super
 
@@ -11,8 +13,10 @@ class ItemsViewController < UIViewController
                 self.navigationItem.rightBarButtonItem = right_button
 
                 BW::HTTP.get('http://recipe4u.herokuapp.com/search.json?service=rakuten&keyword=tomato') do |response|
+#                BW::HTTP.get('http://api.gnavi.co.jp/ver1/RestSearchAPI/?keyid=1a44098f06ec9e3c42211d95e0b0284d&latitude=35.664035&longitude=139.698212&range=3&input_coordinates_mode=2') do |response|
                         if response.ok?
                                 @feed = BW::JSON.parse(response.body.to_str)
+                                pust @feed
                                 self.display_view
                         else
                                 App.alert(response.error_message)
@@ -23,6 +27,17 @@ class ItemsViewController < UIViewController
                         self.push
                 end
                 @left_swipe.direction = UISwipeGestureRecognizerDirectionLeft
+
+                # ロケーションマネージャの初期設定
+                @location_manager ||= CLLocationManager.alloc.init.tap do |lm|
+                        lm.desiredAccuracy = KCLLocationAccuracyBest
+                        lm.distanceFilter = 10
+                        lm.startMonitoringSignificantLocationChanges
+                        lm.delegate = self
+                end
+
+                puts @location_manager.location.coordinate.latitude
+                puts @location_manager.location.coordinate.longitude
         end
         
         def push
